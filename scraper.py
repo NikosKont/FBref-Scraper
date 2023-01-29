@@ -5,7 +5,7 @@ import pandas as pd
 import re
 
 def getPlayerStatsTable(stat, compid):
-    url = f'https://fbref.com/en/comps/{compid}/{stat}/'
+    url = f"https://fbref.com/en/comps/{compid}/{stat}/"
     print(f"Getting data from {url}")
     res = requests.get(url)
     comm = re.compile("<!--|-->")
@@ -40,8 +40,6 @@ def getDataframe(table):
 
 
 def getPlayerStats(stat, compid):
-    # get the player stats table
     table = getPlayerStatsTable(stat, compid)
 
-    # convert the table to a dataframe
     return getDataframe(table)
