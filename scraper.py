@@ -46,7 +46,7 @@ def _getDataframe(table):
             df[col] = df[col].astype(float)
             if df[col].apply(lambda x: x.is_integer()).all():
                 df[col] = df[col].astype(int)
-        except ValueError:
+        except:
             pass
 
     return df
