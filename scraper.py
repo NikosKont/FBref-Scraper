@@ -13,23 +13,35 @@ def available_stats():
     return stats_list
 
 
-def get_player_stats(stat: str, compid: int):
-    """ Get player stats from FBref.com
+def get_player_stats_from_URL(url: str, stat: str):
+    """ Get player stats from FBref.com, using the given URL
+    url: string of the url to get the stats from
     stat: string of the stat to get, must be one of the available stats
-    compid: int of the competition id, can be found in the url of the competition
 
     returns: pandas dataframe of the stats
     """
     if stat not in stats_list:
         raise ValueError(f'stat must be one of {stats_list}')
 
-    table = _get_raw_table(stat, compid)
+    table = _get_table_from_URL(url, stat)
     df = _get_dataframe(table)
     return df
 
 
-def _get_raw_table(stat: str, compid: int):
+def get_player_stats(stat: str, compid: int):
+    """ Get player stats from FBref.com, URL is derived from the arguments
+    stat: string of the stat to get, must be one of the available stats
+    compid: int of the competition id, can be found in the url of the competition
+
+    returns: pandas dataframe of the stats
+    """
     url = f'https://fbref.com/en/comps/{compid}/{stat}/'
+    df = get_player_stats_from_URL(url, stat)
+
+    return df
+
+
+def _get_table_from_URL(url: str, stat: str):
     print(f'Getting data from {url}...')
     res = requests.get(url, timeout=10)
     comm = re.compile('<!--|-->')
@@ -56,13 +68,7 @@ def _get_dataframe(table):
     df = df[df[df.columns[0]] != df.columns[0]]
     df.reset_index(drop=True, inplace=True)
 
-    # convert all numeric columns to float, then integer columns to int
-    for col in df.columns:
-        try:
-            df[col] = df[col].astype(float)
-            if df[col].apply(lambda x: x.is_integer()).all():
-                df[col] = df[col].astype(int)
-        except ValueError:
-            pass
+    # convert all numeric columns to numeric
+    df = df.apply(pd.to_numeric, errors='ignore')
 
     return df
