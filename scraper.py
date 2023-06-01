@@ -5,7 +5,7 @@ import pandas as pd
 from bs4 import BeautifulSoup as bs
 
 
-stats_list = ('stats', 'keepers', 'keepersadv', 'shooting', 'passing','passing_types',
+stats_list = ('standard', 'keepers', 'keepersadv', 'shooting', 'passing','passing_types',
               'gca', 'defense', 'possession', 'playingtime', 'misc')
 
 def available_stats():
@@ -15,8 +15,8 @@ def available_stats():
 
 def get_player_stats_from_URL(url: str, stat: str):
     """ Get player stats from FBref.com, using the given URL
-    url: string of the url to get the stats from
-    stat: string of the stat to get, must be one of the available stats
+    url: the url to get the stats from
+    stat: the stat to get, must be one of the available stats
 
     returns: pandas dataframe of the stats
     """
@@ -28,20 +28,28 @@ def get_player_stats_from_URL(url: str, stat: str):
     return df
 
 
-def get_player_stats(stat: str, compid: int):
+def get_player_stats(stat: str, compid: str):
     """ Get player stats from FBref.com, URL is derived from the arguments
-    stat: string of the stat to get, must be one of the available stats
-    compid: int of the competition id, can be found in the url of the competition
+    stat: the stat to get, must be one of the available stats
+    compid: the competition id, can be found in the url of the competition
 
     returns: pandas dataframe of the stats
     """
-    url = f'https://fbref.com/en/comps/{compid}/{stat}/'
+
+    if stat == 'standard':
+        url = f'https://fbref.com/en/comps/{compid}/stats/'
+    else:
+        url = f'https://fbref.com/en/comps/{compid}/{stat}/'
+
+    if compid == 'Big5':
+        url += 'players/Big-5-European-Leagues-Stats/'
+
     df = get_player_stats_from_URL(url, stat)
 
     return df
 
 
-def _get_table_from_URL(url: str, stat: str):
+def _get_table_from_URL(url, stat):
     print(f'Getting data from {url}...')
     res = requests.get(url, timeout=10)
     comm = re.compile('<!--|-->')
